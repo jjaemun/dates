@@ -9,7 +9,14 @@ pub trait Source: TrySource<Error = Infallible> {
 impl<S> Source for S
 where 
     S: TrySource<Error = Infallible>,
-{}  
+{
+    #[inline]
+    fn contains(&self, date: &Self::Date) -> bool {
+        match self.try_contains(date) {
+            Ok(contained) => contained,
+        }
+    }
+}  
 
 pub trait TrySource {
     type Error: core::error::Error;
