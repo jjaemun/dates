@@ -1,6 +1,5 @@
 use core::convert::Infallible;
-use source::{TrySource, SourceKind};
-
+use source::{SourceKind, TrySource};
 
 pub trait Collector: TryCollector<Error = Infallible> {
     fn contains(&self, date: &Self::Date, kind: SourceKind) -> bool;
@@ -22,15 +21,16 @@ pub trait TryCollector {
     type Error: core::error::Error;
     type Date;
 
-    type Collection<'a>: IntoIterator<Item = &'a dyn TrySource<Error = Self::Error, Date = Self::Date>>
+    type Collection<'a>: IntoIterator<
+        Item = &'a dyn TrySource<Error = Self::Error, Date = Self::Date>,
+    >
     where
         Self: 'a;
 
     fn sources(&self) -> Self::Collection<'_>;
 
     #[inline]
-    fn try_contains(&self, date: &Self::Date, 
-                    kind: SourceKind) -> Result<bool, Self::Error> {
+    fn try_contains(&self, date: &Self::Date, kind: SourceKind) -> Result<bool, Self::Error> {
         for src in self.sources() {
             if src.kind() == kind && src.try_contains(date)? {
                 return Ok(true);
