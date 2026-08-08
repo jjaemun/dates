@@ -1,4 +1,4 @@
-use crate::source::{SourceKind, Source};
+use crate::source::{Source, SourceKind};
 
 pub trait Collector {
     type Date;
@@ -10,18 +10,7 @@ pub trait Collector {
     fn sources(&self) -> Self::Collection<'_>;
 
     #[must_use]
-    fn contains(&self, date: &Self::Date) -> bool {
-        for src in self.sources() {
-            if src.contains(date) {
-                return true;
-            }
-        }
-
-        false
-    }
-
-    #[must_use]
-    fn contains_kind(&self, date: &Self::Date, kind: SourceKind) -> bool {
+    fn contains(&self, date: &Self::Date, kind: SourceKind) -> bool {
         for src in self.sources() {
             if src.kind() == kind && src.contains(date) {
                 return true;
@@ -31,5 +20,3 @@ pub trait Collector {
         false
     }
 }
-
-

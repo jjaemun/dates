@@ -1,26 +1,7 @@
-#![no_std]
+pub mod backend;
+pub mod collector;
+pub mod source;
 
-use core::convert::Infallible;
-
-pub trait Source: TrySource<Error = Infallible> {
-    fn contains(&self, date: &Self::Date) -> bool;
-}
-
-impl<S> Source for S
-where 
-    S: TrySource<Error = Infallible>,
-{
-    #[inline]
-    fn contains(&self, date: &Self::Date) -> bool {
-        match self.try_contains(date) {
-            Ok(contained) => contained,
-        }
-    }
-}  
-
-pub trait TrySource {
-    type Error: core::error::Error;
-    type Date;
-
-    fn try_contains(&self, date: &Self::Date) -> Result<bool, Self::Error>;
-}
+pub use backend::*;
+pub use collector::*;
+pub use source::*;

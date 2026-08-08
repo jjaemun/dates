@@ -1,5 +1,6 @@
 use core::convert::Infallible;
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum SourceKind {
     Weekend,
     Holiday,
@@ -10,7 +11,7 @@ pub trait Source: TrySource<Error = Infallible> {
 }
 
 impl<S> Source for S
-where 
+where
     S: TrySource<Error = Infallible>,
 {
     fn contains(&self, date: &Self::Date) -> bool {
@@ -18,7 +19,7 @@ where
             Ok(contained) => contained,
         }
     }
-}  
+}
 
 pub trait TrySource {
     type Error: core::error::Error;
