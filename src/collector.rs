@@ -1,42 +1,35 @@
-use core::convert::Infallible;
-use source::{SourceKind, TrySource};
+use crate::source::{SourceKind, Source};
 
-pub trait Collector: TryCollector<Error = Infallible> {
-    fn contains(&self, date: &Self::Date, kind: SourceKind) -> bool;
-}
-
-impl<C> Collector for C
-where
-    C: TryCollector<Error = Infallible>,
-{
-    #[inline]
-    fn contains(&self, date: &Self::Date, kind: SourceKind) -> bool {
-        match self.try_contains(date, kind) {
-            Ok(contained) => contained,
-        }
-    }
-}
-
-pub trait TryCollector {
-    type Error: core::error::Error;
+pub trait Collector {
     type Date;
 
-    type Collection<'a>: IntoIterator<
-        Item = &'a dyn TrySource<Error = Self::Error, Date = Self::Date>,
-    >
+    type Collection<'a>: IntoIterator<Item = &'a dyn Source<Date = Self::Date>>
     where
         Self: 'a;
 
     fn sources(&self) -> Self::Collection<'_>;
 
-    #[inline]
-    fn try_contains(&self, date: &Self::Date, kind: SourceKind) -> Result<bool, Self::Error> {
+    #[must_use]
+    fn contains(&self, date: &Self::Date) -> bool {
         for src in self.sources() {
-            if src.kind() == kind && src.try_contains(date)? {
-                return Ok(true);
+            if src.contains(date) {
+                return true;
             }
         }
 
-        Ok(false)
+        false
+    }
+
+    #[must_use]
+    fn contains_kind(&self, date: &Self::Date, kind: SourceKind) -> bool {
+        for src in self.sources() {
+            if src.kind() == kind && src.contains(date) {
+                return true;
+            }
+        }
+
+        false
     }
 }
+
+
